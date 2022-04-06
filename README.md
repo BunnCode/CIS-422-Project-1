@@ -1,6 +1,6 @@
 # CIS 422 Project 1; Notetaking app for [INSERT READING METHOD HERE]
 
-# How to set up the environment
+## How to set up the environment
 This project uses Python3 and tkinter for GUI. To get everything set up properly, run the following commands.
 ```
 #Install the virtual environment
@@ -19,3 +19,16 @@ pip3 install pymongo
 #To exit the virtual environment when you are done working on the project, run this command
 deactivate
 ```
+
+## Project organization
+
+The source is divided into three files:
+
+### program.py
+Contains the main program loop and GUI code.
+
+### database.py
+Contains all code pertaining to database connection.
+
+### datastructures.py
+Contains data structures used by the two above files.
