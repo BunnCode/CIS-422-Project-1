@@ -12,7 +12,11 @@ import datastructures as ds
 window = tk.Tk()
 
 #Create example text component
-helloworld = tk.label("Hello, world!")
+#Added text = as that is required for it to display
+helloworld = tk.Label(text = "Hello, world!")
 
 #Initialize the component (this is not the only way to initialize but it is the simplest)
 helloworld.pack()
+
+#Adding the window mainloop to listen for events
+window.mainloop()
