@@ -15,8 +15,9 @@ window = tk.Tk()
 #Added text = as that is required for it to display
 helloworld = tk.Label(text = "Hello, world!")
 
+save = tk.Button(text = "Save", width=10, height=5, bg="white", fg="black")
 #Initialize the component (this is not the only way to initialize but it is the simplest)
 helloworld.pack()
-
+save.pack()
 #Adding the window mainloop to listen for events
 window.mainloop()
