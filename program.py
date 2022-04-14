@@ -33,16 +33,19 @@ class GuiWin():
         # Setting up the frame for text editing
         txt = tk.Text(master)
         # Creating the frame for buttons
-        buttons = tk.Frame(master, relief=tk.RAISED, bd=2)
-        # Creating open and save as buttons
-        open_button = tk.Button(buttons, text="Open")
-        save_button = tk.Button(buttons, text="Save As...")
+        b_frame = tk.Frame(master, relief=tk.RAISED, bd=2)
+        # Creating load and save as buttons
+        new_file = tk.Button(b_frame, text="New")
+        load_button = tk.Button(b_frame, text="Load")
+        save_button = tk.Button(b_frame, text="Save As...")
+        
         # Assiginging them to the grid and padding the borders
         # Sticky allows it to grow horizontally if the frame resizes
-        open_button.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
-        save_button.grid(row=1, column=0, stick="ew", padx=5)
-        # Assigning the buttons frame to the main window
-        buttons.grid(row=0, column=0, sticky="ns")
+        new_file.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+        load_button.grid(row=1, column=0, sticky="ew", padx=5)
+        save_button.grid(row=2, column=0, stick="ew", padx=5)
+        # Assigning the b_frame to the main window
+        b_frame.grid(row=0, column=0, sticky="ns")
         # Assigning the text grid to the main window
         txt.grid(row=0, column=1, sticky="nsew")
 
