@@ -118,6 +118,26 @@ class Note(Serializable):
         self.note_text = note_text
         super(Note, self).__init__()
 
+class Page(Serializable):
+    def __init__(self, page_num : str):
+        """A page beneath a certain heading. 
+
+        Args:
+            page_num (str): page number
+        """
+        self.notes = []
+        super(Page, self).__init__()
+    
+    def add_note(self, note : str) -> Note:
+        """add a new note to the page
+
+        Args:
+            note (str): text to add
+        """
+        new_note = Note(note)
+        self.notes.append(note)
+        return new_note
+
 class Heading(Serializable):
     def __init__(self, name : str):
         """A heading in a specific chapter
@@ -129,35 +149,32 @@ class Heading(Serializable):
         self.name = name
         #Subheadings
         self.subheadings = []
-        #Notes stored beneath this heading
-        self.notes = []
+        #pages stored beneath this heading
+        self.pages = []
         super(Heading, self).__init__()
     
-    def add_subheading(self, name : str):
+    def add_subheading(self, name : str) -> Heading:
         """Add a subheading to this heading
 
         Args:
             name (str): Subheading name
         """
-        self.subheadings.append(name)
+        new_heading = Heading(name)
+        self.subheadings.append(new_heading)
+        return new_heading
 
-class Page(Serializable):
-    def __init__(self, page_num : str):
-        """A page beneath a certain heading. 
-
-        Args:
-            page_num (str): page number
-        """
-        self.notes = []
-        super(Page, self).__init__()
-    
-    def add_note(self, note : str):
-        """add a new note to the page
+    def add_page(self, page_num : int) -> Page:
+        """Add a new page to this heading
 
         Args:
-            note (str): text to add
+            page_num (int): page number
+
+        Returns:
+            Page: new page
         """
-        self.notes.append(Note(note))
+        new_page = Page(page_num)
+        self.pages.append(new_page)
+        return new_page
     
 class Question(Serializable):
      def __init__(self, question_text : str):
@@ -184,21 +201,25 @@ class Chapter(Serializable):
         self.questions = []
         super(Chapter, self).__init__()
 
-    def add_heading(self, heading_name : str):
+    def add_heading(self, heading_name : str) -> Heading:
         """add a heading to this chapter
 
         Args:
             heading_name (str): name of the heading to add 
         """
-        self.headings.append(Heading(heading_name))
+        new_heading = Heading(heading_name)
+        self.headings.append(new_heading)
+        return new_heading
     
-    def add_question(self, question_text : str):
+    def add_question(self, question_text : str) -> Question:
         """add a new question to this chapter
 
         Args:
             question_text (str): question text
         """
-        self.questions.append(Question(question_text))
+        new_question = Question(question_text)
+        self.questions.append(new_question)
+        return new_question
 
 class Article(Serializable):
     def __init__(self, title : str):
@@ -211,14 +232,35 @@ class Article(Serializable):
         self.chapters = []
         super().__init__()
     
-    def add_chapter(self, chapter_name : str):
+    def add_chapter(self, chapter_name : str, page_num : int) -> Chapter:
         """Add a new chapter to this article
 
         Args:
             chapter_name (str): Name of the chapter to add
         """
-        self.chapters.append(Chapter(chapter_name))
+        new_chapter = Chapter(page_num, chapter_name)
+        self.chapters.append(new_chapter)
+        return new_chapter
     
+
+"""
+Testing for structures below
+"""
+test_article = Article("This is an article about guitars")
+body = test_article.add_chapter("Body", 1)
+neck = test_article.add_chapter("Neck", 4)
+fretboard = test_article.add_chapter("Fretboard", 6)
+
+materials = body.add_heading("Materials")
+materials.add_subheading("Types of wood").add_page(1).add_note("This article says that Oak is common for guitar necks")
+materials.add_subheading("Types of construction")
+
+body.add_question("What are guiar necks made of?")
+
+test_json = str(test_article)
+print("Article converted to json:\n" + test_json)
+article2 = Article.from_json(test_json)
+print("Article converted to json and back again (and again):\n" + str(article2))
 
 #class Note(Serializable):
 #    test = 1
@@ -233,7 +275,7 @@ class Article(Serializable):
 
 #note = Note(True)
 #notejson =  str(note)
-#print("Note converted to json" + str(note))
+#
 #testjson = """{"a_collection_of_cuties": ["tom", "brady", "chelsea"], "pogwaa": "this is a sentence!", "test": "1"}"""
 #note2 = Note.from_json(notejson)
 #print("Note converted to json and back again" + str(note))
