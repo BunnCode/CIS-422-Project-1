@@ -99,7 +99,14 @@ Chapter
 |   |->Subheading
 |   |   |->Page
 |   |       |->Note
+|   |       |->Note
+|   |       |...
+|   |->Note
+|   |->Note
+|   |...
 |->Question   
+
+Chapters store page numbers for sorting purposes but are not children of pages
 """
 class Note(Serializable):
     def __init__(self, note_text : str):
@@ -126,12 +133,13 @@ class Heading(Serializable):
         self.notes = []
         super(Heading, self).__init__()
     
-    def add_subheading(name : str):
+    def add_subheading(self, name : str):
         """Add a subheading to this heading
 
         Args:
             name (str): Subheading name
         """
+        self.subheadings.append(name)
 
 class Page(Serializable):
     def __init__(self, page_num : str):
@@ -149,7 +157,7 @@ class Page(Serializable):
         Args:
             note (str): text to add
         """
-        self.notes.append(Note(str))
+        self.notes.append(Note(note))
     
 class Question(Serializable):
      def __init__(self, question_text : str):
@@ -161,6 +169,56 @@ class Question(Serializable):
         #Text in this note
         self.question_text = question_text
         super(Question, self).__init__()
+
+class Chapter(Serializable):
+    def __init__(self, page_num : int, title : str):
+        """Initialize a new chapter in a specific article.
+
+        Args:
+            page_num (int): page number this chapter appears in
+            title (str): title of this chapter
+        """
+        self.title = title
+        self.page_num = page_num
+        self.headings = []
+        self.questions = []
+        super(Chapter, self).__init__()
+
+    def add_heading(self, heading_name : str):
+        """add a heading to this chapter
+
+        Args:
+            heading_name (str): name of the heading to add 
+        """
+        self.headings.append(Heading(heading_name))
+    
+    def add_question(self, question_text : str):
+        """add a new question to this chapter
+
+        Args:
+            question_text (str): question text
+        """
+        self.questions.append(Question(question_text))
+
+class Article(Serializable):
+    def __init__(self, title : str):
+        """Initialize a new article
+
+        Args:
+            title (str): Title of the article
+        """
+        self.title = title
+        self.chapters = []
+        super().__init__()
+    
+    def add_chapter(self, chapter_name : str):
+        """Add a new chapter to this article
+
+        Args:
+            chapter_name (str): Name of the chapter to add
+        """
+        self.chapters.append(Chapter(chapter_name))
+    
 
 #class Note(Serializable):
 #    test = 1
