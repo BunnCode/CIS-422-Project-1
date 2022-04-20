@@ -2,29 +2,54 @@ from __future__ import annotations
 import json
 import re
 from typing import Dict
-###This file will define the data types that we will use for storing notes. 
-# Namely, the cascading book -> chapter -> heading -> subheading -> line -> notes tree. 
 
 
 class Serializable:
     #prefix given to serializable class names
     __PREFIX = "[s]"
+    def __init__(self, vardict = []):
+        """Converts from a dictionary to a serializable object
 
-    """Initialize serializable object. If provided, will load values from json.
-    """
-    def __init__(self, jsonstr = ""):
-        if len(jsonstr) == 0:
-            return
+        Args:
+            vardict (dict): Dictionary to process. Defaults to [].
+        """
+
+         #Iterate over attribute names
+        for varname in iter(vardict):
+            #pull out value
+            value = vardict[varname]
+            #Detect serialized objects by checking for the prefix
+            if(varname.startswith(Serializable.__PREFIX)):
+                #if we find it, unpack the serialized object (executes recursively)
+                value = Serializable(value)
+                #remove the prefix before setting the attr
+                varname = varname.replace(Serializable.__PREFIX, "")
+
+            #Set attribute 
+            attr = setattr(self, varname, value)
+
+    @staticmethod
+    def from_json(jsonstr = "") -> Serializable:
+        """Initialize serializable object from json
+
+        Args:
+            jsonstr (str, optional): JSON to parse. Defaults to "".
+
+        Returns:
+            Serializable: The deserialized object
+        """
+
         #load attribute dictionary
         attrs = json.loads(jsonstr)
-        #Iterate over attribute names
-        for attributename in iter(attrs):
-            setattr(self, attributename, attrs[attributename])
-        return
-        
-    """convert this serializable object to a dictionary
-    """
+        return Serializable(attrs)
+
     def to_dict(self) -> Dict:
+        """convert this serializable object to a dictionary
+        
+        Returns:
+            Dict: the dictionary representation of this Serializable Object
+        """
+        
         #Get all members of this class, and then filter out default attributes and functions, leaving only variable names
         vars = [varname for varname in dir(self) if not "__" in varname and not callable(getattr(self, varname))]
         #Variable names are stored in a dict 
@@ -32,7 +57,7 @@ class Serializable:
         for varname in vars:
             #attribute we are accessing
             attr = getattr(self, varname)
-            
+
             #dereference value
             value = attr
             #Convert Serializable objects to dictionaries (recursion inits here)
@@ -58,39 +83,100 @@ class Serializable:
             vardict[varname] = value
 
         return vardict
-    
-    """Converts from a dictionary to a serializable object
-    """
-    def from_dict(self) -> Serializable:
+            
 
     """Return JSON
     """
     def __str__(self) -> str:
         outputdict = self.to_dict()
         return json.dumps(outputdict)
-    
-    
 
+"""
+General notes about what's happening here as far as succession
 
-#class SerializableList(Serializable):
-#    members : Serializable
-
-
+Chapter
+|->Heading
+|   |->Subheading
+|   |   |->Page
+|   |       |->Note
+|->Question   
+"""
 class Note(Serializable):
-    test = 1
-    pogwaa = "this is a sentence!"
-    a_collection_of_cuties = ["tom", "brady", "chelsea"]
-    def __init__ (self, flag):
+    def __init__(self, note_text : str):
+        """A note on a specific page
+
+        Args:
+            note_text (str): The note 
+        """
+        self.note_text = note_text
         super(Note, self).__init__()
-        if(flag):
-            self.subnote = Note(False)
-            self.subnote.extradata = "this is extra data owned by the child!"
+
+class Heading(Serializable):
+    def __init__(self, name : str):
+        """A heading in a specific chapter
+
+        Args:
+            name (str): Name of the heading
+        """
+        #Name of the heading
+        self.name = name
+        #Subheadings
+        self.subheadings = []
+        #Notes stored beneath this heading
+        self.notes = []
+        super(Heading, self).__init__()
+    
+    def add_subheading(name : str):
+        """Add a subheading to this heading
+
+        Args:
+            name (str): Subheading name
+        """
+
+class Page(Serializable):
+    def __init__(self, page_num : str):
+        """A page beneath a certain heading. 
+
+        Args:
+            page_num (str): page number
+        """
+        self.notes = []
+        super(Page, self).__init__()
+    
+    def add_note(self, note : str):
+        """add a new note to the page
+
+        Args:
+            note (str): text to add
+        """
+        self.notes.append(Note(str))
+    
+class Question(Serializable):
+     def __init__(self, question_text : str):
+        """A question about a certain chapter
+
+        Args:
+            note_text (str): The question to be answered
+        """
+        #Text in this note
+        self.question_text = question_text
+        super(Question, self).__init__()
+
+#class Note(Serializable):
+#    test = 1
+#    pogwaa = "this is a sentence!"
+#    a_collection_of_cuties = ["tom", "brady", "chelsea"]
+#    def __init__ (self, flag):
+#        super(Note, self).__init__()
+#        if(flag):
+#            self.subnote = Note(False)
+#            self.subnote.extradata = "this is extra data owned by the child!"
         
 
-note = Note(True)
-notejson =  str(note)
-print("Note converted to json" + str(note))
-testjson = """{"a_collection_of_cuties": ["tom", "brady", "chelsea"], "pogwaa": "this is a sentence!", "test": "1"}"""
-note2 = Note(notejson)
-print("Note converted to json and back again" + str(note))
+#note = Note(True)
+#notejson =  str(note)
+#print("Note converted to json" + str(note))
+#testjson = """{"a_collection_of_cuties": ["tom", "brady", "chelsea"], "pogwaa": "this is a sentence!", "test": "1"}"""
+#note2 = Note.from_json(notejson)
+#print("Note converted to json and back again" + str(note))
 
