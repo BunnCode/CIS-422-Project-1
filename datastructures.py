@@ -1,14 +1,14 @@
 from __future__ import annotations
 import json
 import re
+from typing import Dict
 ###This file will define the data types that we will use for storing notes. 
 # Namely, the cascading book -> chapter -> heading -> subheading -> line -> notes tree. 
 
 
 class Serializable:
-    """Children of this serializable object
-    """
-    children : Serializable
+    #prefix given to serializable class names
+    __PREFIX = "[s]"
 
     """Initialize serializable object. If provided, will load values from json.
     """
@@ -22,38 +22,52 @@ class Serializable:
             setattr(self, attributename, attrs[attributename])
         return
         
-            
-    """Recursively serialize to JSON
+    """convert this serializable object to a dictionary
     """
-    def __str__(self) -> str:
+    def to_dict(self) -> Dict:
         #Get all members of this class, and then filter out default attributes and functions, leaving only variable names
-        vars = [varname for varname in dir(self) if not varname.startswith("__") and not callable(getattr(self, varname))]
-        #Variable names are stored in a list of tuples of key value pairs
-        var_tuple_list = []
+        vars = [varname for varname in dir(self) if not "__" in varname and not callable(getattr(self, varname))]
+        #Variable names are stored in a dict 
+        vardict = {}
         for varname in vars:
             #attribute we are accessing
             attr = getattr(self, varname)
-            #Convert to string - this is the part that triggers the recursive call
-            attrjson = str(attr)
+            
+            #dereference value
+            value = attr
+            #Convert Serializable objects to dictionaries (recursion inits here)
+            if  issubclass(type(attr), Serializable):
+                #Swap out the serializable object for its dict representation
+                value = attr.to_dict()
+                #Add annotation to the type name for later deserialization
+                varname = Serializable.__PREFIX + varname
+            
+            #Ensure that Serializables in lists are properly converted
+            if type(value) is list:
+                for i, item in enumerate(value):
+                    if issubclass(type(item), Serializable):
+                        value[i] = value[i].to_dict()
+            
+            #Ensure that Serializables in dicts are properly converted
+            if type(value) is dict:
+                for key in value:
+                    if issubclass(type(value[key]), Serializable):
+                        value[key] = value[key].to_dict()
 
-            #If the attr is a string we have to make it json compatible
-            #if type(attr) is list:
-             #   attrjson = attrjson[1:-1]
+            #add attribute to dict
+            vardict[varname] = value
 
-            #add attribute to list of tuples
-            var_tuple_list.append((varname, str(attrjson)))
-        
-        
-        for var in var_tuple_list:
+        return vardict
+    
+    """Converts from a dictionary to a serializable object
+    """
+    def from_dict(self) -> Serializable:
 
-        #Regex to replace all single quotes that are not in strings with double quotes; sourced from https://stackoverflow.com/questions/39491420/python-jsonexpecting-property-name-enclosed-in-double-quotes
-        #p = re.compile('(?<!\\\\)\'')
-        
-        #convert var dict to string and run the regex on it 
-        #jsonoutput = p.sub('\"', str(vardict))
-
-        #Conveniently, dictionary string representations include curly braces so we don't need to add them for the json
-        #return "{0}".format(jsonoutput)
+    """Return JSON
+    """
+    def __str__(self) -> str:
+        outputdict = self.to_dict()
+        return json.dumps(outputdict)
     
     
 
@@ -66,11 +80,14 @@ class Note(Serializable):
     test = 1
     pogwaa = "this is a sentence!"
     a_collection_of_cuties = ["tom", "brady", "chelsea"]
-    #def __init__ ():
-        #do nothing
-        #return
+    def __init__ (self, flag):
+        super(Note, self).__init__()
+        if(flag):
+            self.subnote = Note(False)
+            self.subnote.extradata = "this is extra data owned by the child!"
+        
 
-note = Note()
+note = Note(True)
 notejson =  str(note)
 print("Note converted to json" + str(note))
 testjson = """{"a_collection_of_cuties": ["tom", "brady", "chelsea"], "pogwaa": "this is a sentence!", "test": "1"}"""
