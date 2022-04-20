@@ -262,21 +262,4 @@ print("Article converted to json:\n" + test_json)
 article2 = Article.from_json(test_json)
 print("Article converted to json and back again (and again):\n" + str(article2))
 
-#class Note(Serializable):
-#    test = 1
-#    pogwaa = "this is a sentence!"
-#    a_collection_of_cuties = ["tom", "brady", "chelsea"]
-#    def __init__ (self, flag):
-#        super(Note, self).__init__()
-#        if(flag):
-#            self.subnote = Note(False)
-#            self.subnote.extradata = "this is extra data owned by the child!"
-        
-
-#note = Note(True)
-#notejson =  str(note)
-#
-#testjson = """{"a_collection_of_cuties": ["tom", "brady", "chelsea"], "pogwaa": "this is a sentence!", "test": "1"}"""
-#note2 = Note.from_json(notejson)
-#print("Note converted to json and back again" + str(note))
 
