@@ -1,6 +1,5 @@
 ###This file contains all databse code for the program.
 ###All GUI Code should be executed in program.py
-from pymongo import MongoClient
 import datastructures as ds
 
 ###These are stubs. Please feel free to modify them. I just wrote some stuff out to give a scaffold for us to work from since time is so short. 
