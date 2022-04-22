@@ -1,24 +1,71 @@
-###This file contains all databse code for the program.
-###All GUI Code should be executed in program.py
+from typing import List
+from urllib.request import urlopen
+from urllib import request, parse
 import datastructures as ds
 
-###These are stubs. Please feel free to modify them. I just wrote some stuff out to give a scaffold for us to work from since time is so short. 
-"""Connect to the MongoDB instance given "url"
-"""
-def init_db_connection(url: str):
-    #Initialize the connection to the database. Remember that this cannot require a password as per project instructions.
-    #todo: This is a stub and IS NOT complete.
-    client = MongoClient(url)
-    return client 
+#URL of the API
+API_URL = "http://52.40.140.242:80"
+ENCODING = "utf-8"
+class RequestError(Exception):
+    pass
 
-"""load and return all information from database "client" for a given user defined by "user" on chapter "chapter"
-"""
-def load_chapter_notes_from_db(client: MongoClient, chapter:int, user: str):
-    #Should this be recursive somehow? Each individual heading and subheading can also have notes.
-    #This will ultimately return a value from "datastructures.py"
-    return None
+def decode_response(response_content, desired_data : str):
+    """Decode response from server, and raise exceptions if necessary
 
-"""save all information from database "client" for a given user defined by "user" on chapter "chapter"
-"""
-#def save_chapter_notes_to_db(client: MongoClient, chapter:int, user: str):
-#This function will take in the data structure defined in "datastructures.py"
+    Args:
+        response_content (Any): Object representation of response
+        desired_data (str): name of variable to pull from the request
+
+    Raises:
+        RequestError: Raised if the success flag is set to false
+        RequestError: Raised if the desired data cannot be found on the object
+
+    Returns:
+        (Any): the desired data from the object
+    """
+    response_text = response_content.decode(ENCODING)
+    response = ds.Serializable.from_json(response_text)
+    if(response.success != True):
+        raise RequestError(response.message)
+    try:
+        return getattr(response, desired_data)
+    except:
+        raise RequestError("Invalid data requested! Could not find {}".format(desired_data))
+
+def get_articles() -> List:
+    """Return a list of articles from the server
+
+    Returns:
+        List(Article): A list of all the articles currently on the server
+    """
+    
+    with urlopen(API_URL + "/getArticles") as response:
+        response_content = response.read()
+        return decode_response(response_content, "articles")
+
+def get_articles() -> List:
+    """Return a list of articles from the server
+
+    Returns:
+        List(Article): A list of all the articles currently on the server
+    """
+    
+    with urlopen(API_URL + "/getArticles") as response:
+        response_content = response.read()
+        return decode_response(response_content, "articles")
+
+def load_article(id : int) -> ds.Article:
+    """Returns a specific article from the server
+
+    Args:
+        id (int): article ID
+
+    Returns:
+        ds.Article: Article returned from server
+    """
+    body = parse.urlencode({"article_id":id}).encode()
+    req = request.Request(API_URL + "/loadArticle", data=body)
+    with urlopen(req) as response:
+        response_content = response.read()
+        return decode_response(response_content, "articles")
+        

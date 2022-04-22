@@ -6,7 +6,9 @@ from typing import Dict
 
 class Serializable:
     #prefix given to serializable class names
-    __PREFIX = "[s]"
+    __PREFIX = ""
+    #ID given to objects that have not synced with the database yet
+    __ERR_ID = -9
     def __init__(self, vardict = []):
         """Converts from a dictionary to a serializable object
 
@@ -19,7 +21,7 @@ class Serializable:
             #pull out value
             value = vardict[varname]
             #Detect serialized objects by checking for the prefix
-            if(varname.startswith(Serializable.__PREFIX)):
+            if(varname.startswith(Serializable.__PREFIX) and issubclass(type(value), Dict)):
                 #if we find it, unpack the serialized object (executes recursively)
                 value = Serializable(value)
                 #remove the prefix before setting the attr
@@ -29,8 +31,8 @@ class Serializable:
             attr = setattr(self, varname, value)
 
     @staticmethod
-    def from_json(jsonstr = "") -> Serializable:
-        """Initialize serializable object from json
+    def from_json(jsonstr = ""):
+        """Initialize serializable object(s) from json
 
         Args:
             jsonstr (str, optional): JSON to parse. Defaults to "".
@@ -41,7 +43,13 @@ class Serializable:
 
         #load attribute dictionary
         attrs = json.loads(jsonstr)
-        return Serializable(attrs)
+        #Detect serialized objects by checking for the prefix
+        if(issubclass(type(attrs), Dict)):
+            #If the parent object is a serializable object, return it
+            return Serializable(attrs)
+        else:
+            #if not, it's a collection or some other data type; return the data
+            return attrs
 
     def to_dict(self) -> Dict:
         """convert this serializable object to a dictionary
@@ -222,14 +230,15 @@ class Chapter(Serializable):
         return new_question
 
 class Article(Serializable):
-    def __init__(self, title : str):
+    def __init__(self, article_name : str, article_id = -1):
         """Initialize a new article
 
         Args:
-            title (str): Title of the article
+            article_name (str): Title of the article
         """
-        self.title = title
+        self.article_name = article_name
         self.chapters = []
+        self.article_id = article_id
         super().__init__()
     
     def add_chapter(self, chapter_name : str, page_num : int) -> Chapter:
@@ -241,10 +250,10 @@ class Article(Serializable):
         new_chapter = Chapter(page_num, chapter_name)
         self.chapters.append(new_chapter)
         return new_chapter
-    
 
 """
 Testing for structures below
+"""
 """
 test_article = Article("This is an article about guitars")
 body = test_article.add_chapter("Body", 1)
@@ -262,4 +271,4 @@ print("Article converted to json:\n" + test_json)
 article2 = Article.from_json(test_json)
 print("Article converted to json and back again (and again):\n" + str(article2))
 
-
+"""

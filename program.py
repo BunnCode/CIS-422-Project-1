@@ -3,6 +3,7 @@
 
 #import GUI library
 import tkinter as tk
+from tkinter import messagebox
 #import database file
 import database as db
 #import datastructures file
@@ -49,8 +50,14 @@ class GuiWin():
         # Assigning the text grid to the main window
         txt.grid(row=0, column=1, sticky="nsew")
 
+        txt.insert(tk.END, db.get_articles())
+        db.load_article(1)
+        
 
 # --- main ---
-root = tk.Tk()
-gui = GuiWin(root)
-root.mainloop()
+try:
+    root = tk.Tk()
+    gui = GuiWin(root)
+    root.mainloop()
+except Exception as e:
+    messagebox.showerror('Python Error', e)
