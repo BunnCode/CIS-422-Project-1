@@ -50,9 +50,10 @@ class GuiWin():
         # Assigning the text grid to the main window
         txt.grid(row=0, column=1, sticky="nsew")
 
+        """This is an example of how to load all articles"""
         txt.insert(tk.END, db.get_articles())
-        db.load_article(1)
-        
+        """This is an example of how to load a specific article by ID"""
+        article = db.load_article(1)
 
 # --- main ---
 try:
