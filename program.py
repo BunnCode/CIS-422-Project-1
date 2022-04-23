@@ -2,7 +2,9 @@
 ###All databse management code should be done in databse.py
 
 #import GUI library
-import tkinter as tk
+from doctest import master
+from tkinter import *
+from turtle import left
 #import database file
 import database as db
 #import datastructures file
@@ -29,28 +31,52 @@ class GuiWin():
         # Resizing the rows and column of the frame
         master.rowconfigure(0, minsize=800, weight=1)
         master.columnconfigure(1, minsize=800, weight=1)
+        self.widgets()
+        books = Label(text=self.samplebooks(), justify=LEFT)
+        books.grid(row=0, column=0)
 
         # Setting up the frame for text editing
-        txt = tk.Text(master)
-        # Creating the frame for buttons
-        b_frame = tk.Frame(master, relief=tk.RAISED, bd=2)
-        # Creating load and save as buttons
-        new_file = tk.Button(b_frame, text="New")
-        load_button = tk.Button(b_frame, text="Load")
-        save_button = tk.Button(b_frame, text="Save As...")
-        
-        # Assiginging them to the grid and padding the borders
-        # Sticky allows it to grow horizontally if the frame resizes
-        new_file.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
-        load_button.grid(row=1, column=0, sticky="ew", padx=5)
-        save_button.grid(row=2, column=0, stick="ew", padx=5)
-        # Assigning the b_frame to the main window
-        b_frame.grid(row=0, column=0, sticky="ns")
+        txt = Text(master)
         # Assigning the text grid to the main window
         txt.grid(row=0, column=1, sticky="nsew")
 
+    def newfile():
+        x = 0
+
+    def samplebooks(self):
+        txt = ""
+        for x in range(10):
+            txt = txt + "Yikes\n"
+        return txt
+    
+
+    def save():
+        x = 0
+
+    def openfile():
+        x = 0
+
+    def deletefile():
+        x = 0
+    
+    def exitprogram(self):
+        self.master.quit()
+    
+    def widgets(self):
+        menubar = Menu(master)
+        filemenu = Menu(menubar, tearoff=0)
+        filemenu.add_command(label="New")
+        filemenu.add_command(label="Open")
+        filemenu.add_command(label="Save")
+        filemenu.add_separator()
+        filemenu.add_command(label="Exit", command=self.exitprogram)
+        menubar.add_cascade(label="File", menu=filemenu)
+        root.config(menu = menubar)
+
+        #viewmenu = tk.Menu(menubar, tearoff=0)
+
 
 # --- main ---
-root = tk.Tk()
+root = Tk()
 gui = GuiWin(root)
 root.mainloop()
