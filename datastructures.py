@@ -120,7 +120,7 @@ class Note(Serializable):
             page (int): The page of the note
         """
         self.note_text = note_text
-        self.page_num = page
+        self.page_num = page_num
         super(Note, self).__init__()
         
 class Question(Serializable):
