@@ -21,8 +21,8 @@ class GuiWin():
     def __init__(self, master):
         """
         Main window constructor
-        input: TK variable
-        output: None
+        Input: self, The object pointer
+        Input: master, The main window
         """
         # Setting the master variable to master
         # Titling the window "Basic GUI"
@@ -40,7 +40,7 @@ class GuiWin():
         txt = Text(master)
         # Assigning the text grid to the main window
         txt.grid(row=0, column=1, sticky="nsew")
-        txt.insert(END, db.get_articles())
+        #txt.insert(END, db.get_articles())
 
     def newfile():
         x = 0
