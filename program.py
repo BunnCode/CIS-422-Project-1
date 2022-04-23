@@ -4,6 +4,7 @@
 #import GUI library
 from doctest import master
 from tkinter import *
+from tkinter import messagebox
 from turtle import left
 #import database file
 import database as db
@@ -39,6 +40,7 @@ class GuiWin():
         txt = Text(master)
         # Assigning the text grid to the main window
         txt.grid(row=0, column=1, sticky="nsew")
+        txt.insert(END, db.get_articles())
 
     def newfile():
         x = 0
@@ -77,6 +79,14 @@ class GuiWin():
 
 
 # --- main ---
-root = Tk()
-gui = GuiWin(root)
-root.mainloop()
+try:
+    root = Tk()
+    gui = GuiWin(root)
+    root.mainloop()
+except Exception as e:
+    messagebox.showerror('Python Error', e)
+"""This is an example of how to load all articles"""
+
+"""This is an example of how to load a specific article by ID"""
+article = db.load_article(1)
+
