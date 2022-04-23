@@ -8,6 +8,11 @@ from urllib import request, parse, response
 #URL of the API
 API_URL = "http://52.40.140.242:80"
 ENCODING = "utf-8"
+HEADERS = {
+         "Content-Type" : "application/json"
+    }
+    
+#Error class representing an error with the JSON request
 class RequestError(Exception):
     pass
 
@@ -60,11 +65,9 @@ def load_article(id : int) -> ds.Article:
     #Body is a dict converted to json and then encoded
     body = json.dumps({"article_id":id}).encode()
     #Don't forget to set headers to type JSON
-    headers = {
-         "Content-Type" : "application/json"
-    }
+
     #Build out the request
-    req = request.Request(API_URL + "/loadArticle", data = body, headers=headers, method="GET")
+    req = request.Request(API_URL + "/loadArticle", data = body, headers=HEADERS, method="GET")
     #Execute the request and get the result
     with urlopen(req) as response:
         response_content = response.read()

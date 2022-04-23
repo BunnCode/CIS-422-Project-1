@@ -105,10 +105,9 @@ General notes about what's happening here as far as succession
 Chapter
 |->Heading
 |   |->Subheading
-|   |   |->Page
-|   |       |->Note
-|   |       |->Note
-|   |       |...
+|   |   |->Note
+|   |   |->Note
+|   |   |...
 |   |->Note
 |   |->Note
 |   |...
@@ -118,7 +117,7 @@ Chapters store page numbers for sorting purposes but are not children of pages
 """
 class Note(Serializable):
     def __init__(self, note_text : str):
-        """A note on a specific page
+        """A note on a specific heading
 
         Args:
             note_text (str): The note 
@@ -126,25 +125,6 @@ class Note(Serializable):
         self.note_text = note_text
         super(Note, self).__init__()
 
-class Page(Serializable):
-    def __init__(self, page_num : str):
-        """A page beneath a certain heading. 
-
-        Args:
-            page_num (str): page number
-        """
-        self.notes = []
-        super(Page, self).__init__()
-    
-    def add_note(self, note : str) -> Note:
-        """add a new note to the page
-
-        Args:
-            note (str): text to add
-        """
-        new_note = Note(note)
-        self.notes.append(note)
-        return new_note
 
 class Heading(Serializable):
     def __init__(self, name : str):
@@ -157,8 +137,8 @@ class Heading(Serializable):
         self.name = name
         #Subheadings
         self.subheadings = []
-        #pages stored beneath this heading
-        self.pages = []
+        #notes stored beneath this heading
+        self.notes = []
         super(Heading, self).__init__()
     
     def add_subheading(self, name : str) -> Heading:
@@ -171,18 +151,15 @@ class Heading(Serializable):
         self.subheadings.append(new_heading)
         return new_heading
 
-    def add_page(self, page_num : int) -> Page:
-        """Add a new page to this heading
+    def add_note(self, note : str) -> Note:
+        """add a new note to the heading
 
         Args:
-            page_num (int): page number
-
-        Returns:
-            Page: new page
+            note (str): text to add
         """
-        new_page = Page(page_num)
-        self.pages.append(new_page)
-        return new_page
+        new_note = Note(note)
+        self.notes.append(note)
+        return new_note
     
 class Question(Serializable):
      def __init__(self, question_text : str):
