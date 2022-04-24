@@ -1,3 +1,5 @@
+from __future__ import annotations
+from sre_parse import State
 #import datastructures file
 import datastructures as ds
 from tkinter import *
@@ -20,14 +22,13 @@ class GUIState:
         self.widgets = []
         self.root = root
 
-    def start_state(self):
+    def start_state(self, prev_state : GUIState, controller : StateController):
         """Start a state and initialize its interface
 
         Raises:
             NotImplementedError: Not implemented override
         """
-        #code to spawn GUI will be overridden here
-        raise NotImplementedError()
+        self.controller = controller
     
     def leave_state(self):
         """Tear down this state and delete all unique GUI elements
@@ -45,14 +46,15 @@ class StateController:
         if(self.current_state != None):
             #call the code to tear down the old UI
             self.current_state.leave_state()
+            last_state = self.current_state
             #change the current state
             self.current_state = new_state
             #initialize the new state
-            self.current_state.start_state()
+            self.current_state.start_state(last_state, self)
 
     def __init__(self, initial_state : GUIState = None):
         self.current_state = initial_state
-        self.current_state.start_state()
+        self.current_state.start_state(None, self)
 
 class ArticleSelectionState(GUIState):
     """The default state
@@ -67,13 +69,17 @@ class ArticleSelectionState(GUIState):
         self.articles = articles
         super(ArticleSelectionState, self).__init__(root)
 
-    def start_state(self):
+    def start_state(self, prev_state : GUIState, controller : StateController):
         """Override
         """
+        #call this first to get that ref planted
+        super(ArticleSelectionState, self).start_state(prev_state, controller)
+        #reference the state controller to change states with self.controller.change_state(newstate)
+        
         books = Label(text=samplebooks(), justify=LEFT)
         books.grid(row=0, column=0)
         self.widgets.append(books)
-        
+
         # Setting up the frame for text editing
         txt = Text(self.root)
         self.widgets.append(txt)
