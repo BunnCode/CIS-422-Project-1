@@ -32,15 +32,16 @@ class GuiWin():
         # Titling the window "Basic GUI"
         self.root = root
         root.title("Basic GUI")
-
         # Resizing the rows and column of the frame
-        root.rowconfigure(0, minsize=800, weight=1)
-        root.columnconfigure(1, minsize=800, weight=1)
         self.widgets()
         
         articleSelectionState = gs.ArticleSelectionState(root, [])
+        
         self.state_controller = gs.StateController(articleSelectionState)
+        change_s = Button(text="edit mode", command=self.state_controller.change_state(gs.ArticleEditState(root, [])))
+        change_s.pack()
 
+        
     def newfile():
         x = 0
 
@@ -54,8 +55,16 @@ class GuiWin():
         x = 0
     
     def exitprogram(self):
-        self.root.quit()
-
+        """
+        Exits program with yes/no prompt
+        Warns about unsaved data
+        """
+        option = messagebox.askyesno("WARNING", "Your unsaved data may be lost. Do you still want to exit?")
+        if option:
+            self.root.quit()
+        else:
+            return
+        
     # Creating a menu bar
     def widgets(self):
         menubar = Menu(root)
@@ -65,6 +74,7 @@ class GuiWin():
         filemenu.add_command(label="Save")
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=self.exitprogram)
+        #filemenu.add_command(label="Edit mode", command=self.change(state))
         menubar.add_cascade(label="File", menu=filemenu)
         
 

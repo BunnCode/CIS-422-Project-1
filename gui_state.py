@@ -5,15 +5,7 @@ import datastructures as ds
 from tkinter import *
 from tkinter import messagebox
 from turtle import left
-
-"""Temporary, remove when done"""
-def samplebooks():
-    txt = ""
-    for x in range(10):
-        txt = txt + "Yikes\n"
-    return txt
-
-"""end temp"""
+import database as db
 
 class GUIState:
     """Defines a GUI state. 
@@ -75,10 +67,43 @@ class ArticleSelectionState(GUIState):
         #call this first to get that ref planted
         super(ArticleSelectionState, self).start_state(prev_state, controller)
         #reference the state controller to change states with self.controller.change_state(newstate)
+        selected_option = StringVar(self.root)
+        if len(self.articles) == 0:
+            self.articles.append("New Article")
+        selected_option.set(self.articles[0]) #default menu option
+        drop_menu = OptionMenu(self.root, selected_option, *self.articles)
+        self.widgets.append(drop_menu)
+        drop_menu.pack()
+        select_button = Button(self.root, text="Select")
+        self.widgets.append(select_button)
+        select_button.pack()
+
+    def leave_state(self):
+        """Override
+        """
+        #Call the base teardown of all widgets
+        super(ArticleSelectionState, self).leave_state()
+
+class ArticleEditState(GUIState):
+    """The text edit state
+    """
+    def __init__(self, root : Widget, articles = []):
+        """Initialize the default state with some articles defined by params
+
+        Args:
+            root (Widget): Root of this GUI window 
+            articles (list): Loaded articles. Defaults to []
+        """
+        self.articles = articles
+        super(ArticleEditState, self).__init__(root)
+
+    def start_state(self, prev_state : GUIState, controller : StateController):
+        """Override
+        """
+        #call this first to get that ref planted
+        super(ArticleEditState, self).start_state(prev_state, controller)
+        #reference the state controller to change states with self.controller.change_state(newstate)
         
-        books = Label(text=samplebooks(), justify=LEFT)
-        books.grid(row=0, column=0)
-        self.widgets.append(books)
 
         # Setting up the frame for text editing
         txt = Text(self.root)
@@ -91,5 +116,38 @@ class ArticleSelectionState(GUIState):
         """Override
         """
         #Call the base teardown of all widgets
-        super(ArticleSelectionState, self).leave_state()
+        super(ArticleEditState, self).leave_state()
 
+class ArticleQuizState(GUIState):
+    """The quiz state
+    """
+    def __init__(self, root : Widget, articles = []):
+        """Initialize the default state with some articles defined by params
+
+        Args:
+            root (Widget): Root of this GUI window 
+            articles (list): Loaded articles. Defaults to []
+        """
+        self.articles = articles
+        super(ArticleQuizState, self).__init__(root)
+
+    def start_state(self, prev_state : GUIState, controller : StateController):
+        """Override
+        """
+        #call this first to get that ref planted
+        super(ArticleQuizState, self).start_state(prev_state, controller)
+        #reference the state controller to change states with self.controller.change_state(newstate)
+        
+
+        # Setting up the frame for text editing
+        txt = Text(self.root)
+        self.widgets.append(txt)
+        # Assigning the text grid to the main window
+        txt.grid(row=0, column=1, sticky="nsew")
+        #txt.insert(END, db.get_articles())
+    
+    def leave_state(self):
+        """Override
+        """
+        #Call the base teardown of all widgets
+        super(ArticleQuizState, self).leave_state()
