@@ -10,6 +10,8 @@ from turtle import left
 import database as db
 #import datastructures file
 import datastructures as ds
+#import gui state file
+import gui_state as gs
 
 """@package docstring
 The main code for the GUI Program
@@ -35,24 +37,12 @@ class GuiWin():
         root.rowconfigure(0, minsize=800, weight=1)
         root.columnconfigure(1, minsize=800, weight=1)
         self.widgets()
-        books = Label(text=self.samplebooks(), justify=LEFT)
-        books.grid(row=0, column=0)
-
-        # Setting up the frame for text editing
-        txt = Text(root)
-        # Assigning the text grid to the main window
-        txt.grid(row=0, column=1, sticky="nsew")
-        #txt.insert(END, db.get_articles())
+        
+        articleSelectionState = gs.ArticleSelectionState(root, [])
+        self.state_controller = gs.StateController(articleSelectionState)
 
     def newfile():
         x = 0
-
-    def samplebooks(self):
-        txt = ""
-        for x in range(10):
-            txt = txt + "Yikes\n"
-        return txt
-    
 
     def save():
         x = 0

@@ -4,6 +4,7 @@ import re
 from typing import Dict
 
 
+
 class Serializable:
     #prefix given to serializable class names
     __PREFIX = ""
