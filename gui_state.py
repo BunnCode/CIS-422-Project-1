@@ -17,6 +17,7 @@ class GUIState:
     """Defines a GUI state. 
     """
     def __init__(self, root : Widget):
+        self.widgets = []
         self.root = root
 
     def start_state(self):
@@ -34,8 +35,10 @@ class GUIState:
         Raises:
             NotImplementedError: Not implemented
         """
-        #code to tear down GUI will be overridden here
-        raise NotImplementedError()
+        for w in reversed(self.widgets):
+            w.destroy()    
+        #blank the list
+        self.widgets = []      
 
 class StateController:
     def change_state(self, new_state : GUIState):
@@ -69,10 +72,18 @@ class ArticleSelectionState(GUIState):
         """
         books = Label(text=samplebooks(), justify=LEFT)
         books.grid(row=0, column=0)
-
+        self.widgets.append(books)
+        
         # Setting up the frame for text editing
         txt = Text(self.root)
+        self.widgets.append(txt)
         # Assigning the text grid to the main window
         txt.grid(row=0, column=1, sticky="nsew")
         #txt.insert(END, db.get_articles())
+    
+    def leave_state(self):
+        """Override
+        """
+        #Call the base teardown of all widgets
+        super(ArticleSelectionState, self).leave_state()
 
