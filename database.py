@@ -4,7 +4,10 @@ import datastructures as ds
 from typing import List
 from urllib.request import urlopen
 from urllib import request, parse, response
+import datastructures as ds
 
+import asyncio
+import time
 #URL of the API
 API_URL = "http://52.40.140.242:80"
 ENCODING = "utf-8"
@@ -72,4 +75,52 @@ def load_article(id : int) -> ds.Article:
     with urlopen(req) as response:
         response_content = response.read()
         return decode_response(response_content)
+
+class ArticleValidator:
+    _ArticlesToTrack = set() #Set of all tracked articles
+    _KillUpdater = False #Internal flag used when closing out the updater to prevent collisions
+    
+    def __update_article(article : ds.Article):
+        """Private method not to be called from outside the class. Updates an article 
+        on the server from the local copy.
+
+        Args:
+            article (ds.Article): article to update
+        """
+
+
+    async def __update_articles_on_server(delay):
+        """Private coroutine that keeps articles updated server-side.
+        """
+        while(not ArticleValidator._KillUpdater):
+            await asyncio.sleep(delay)
+            #ArticleValidator.__update_article()
+            print("update called \n")
+
+    def initialize_tracking(update_delay : int):
+        """Call to initialize tracking of articles to the server
+
+        Args:
+            update_delay (int): Delay in seconds between tracking updates
+        """
+        #Initialize the coroutine
+        asyncio.create_task(
+            ArticleValidator.__update_articles_on_server(update_delay))
+
+    def track_article_to_server(article : ds.Article):
+        """Set an article to track with the server
+
+        Args:
+            article (ds.Article): Article to track
+        """
+        ArticleValidator._ArticlesToTrack.add(article)
+    
+    def untrack_article(article : ds.Article):
+        """Stop tracking an article (always call this before destroying the article)
+
+        Args:
+            article (ds.Article): Article to stop tracking
+        """
+        ArticleValidator._ArticlesToTrack.remove(article)
+        #await asyncio.sleep(delay)
         

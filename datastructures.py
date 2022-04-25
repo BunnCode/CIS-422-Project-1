@@ -217,4 +217,3 @@ class Article(Serializable):
         new_attempt = QuizAttempt(score, max_score)
         self.quiz_attempts.append(new_attempt)
         return new_attempt
-

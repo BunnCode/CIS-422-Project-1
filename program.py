@@ -22,6 +22,12 @@ class GuiWin():
         input: TK variable
         output: None
         """
+
+        #Initialize article tracking with a delay of 5 seconds between validations
+        db.ArticleValidator.initialize_tracking(5)
+        
+
+
         # Setting the master variable to master
         # Titling the window "Basic GUI"
         self.master = master
@@ -51,9 +57,9 @@ class GuiWin():
         txt.grid(row=0, column=1, sticky="nsew")
 
         """This is an example of how to load all articles"""
-        txt.insert(tk.END, db.get_articles())
+        #txt.insert(tk.END, db.get_articles())
         """This is an example of how to load a specific article by ID"""
-        article = db.load_article(1)
+        #article = db.load_article(1)
 
 # --- main ---
 try:
