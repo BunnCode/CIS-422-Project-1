@@ -33,13 +33,17 @@ class GuiWin():
         self.root = root
         root.title("Basic GUI")
         # Resizing the rows and column of the frame
-        self.widgets()
-        
+        self.menu_bar()
+        """
+        artics = [ds.Article("Yellow", 1), ds.Article("Green", 2)]
+        artics[0].add_chapter("ch 1", 34)
+        artics[0].chapters[0].add_note(34, "YEEEET")
+        """
         articleSelectionState = gs.ArticleSelectionState(root, [])
         
         self.state_controller = gs.StateController(articleSelectionState)
-        change_s = Button(text="edit mode", command=self.state_controller.change_state(gs.ArticleEditState(root, [])))
-        change_s.pack()
+
+        
 
         
     def newfile():
@@ -66,21 +70,25 @@ class GuiWin():
             return
         
     # Creating a menu bar
-    def widgets(self):
+    def menu_bar(self):
+        
         menubar = Menu(root)
         filemenu = Menu(menubar, tearoff=0)
-        filemenu.add_command(label="New")
+        sub_menu = Menu(filemenu, tearoff=0)
+        sub_menu.add_command(label="Book")
+        sub_menu.add_command(label="Chapter")
+        filemenu.add_cascade(label="New", menu=sub_menu)
         filemenu.add_command(label="Open")
         filemenu.add_command(label="Save")
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=self.exitprogram)
-        #filemenu.add_command(label="Edit mode", command=self.change(state))
+
         menubar.add_cascade(label="File", menu=filemenu)
         
 
-        #viewmenu = Menu(menubar, tearoff=0)
-        #viewmenu.add_command(label="Toggle Dark Mode", command=self.theme)
-        #menubar.add_cascade(label="View", menu=viewmenu)
+        edit_menu = Menu(menubar, tearoff=0)
+        edit_menu.add_command(label="")
+        menubar.add_cascade(label="Edit", menu=edit_menu)
 
         root.config(menu = menubar)
 

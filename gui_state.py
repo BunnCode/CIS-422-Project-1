@@ -70,24 +70,39 @@ class ArticleSelectionState(GUIState):
         selected_option = StringVar(self.root)
         if len(self.articles) == 0:
             self.articles.append("New Article")
-        selected_option.set(self.articles[0]) #default menu option
-        drop_menu = OptionMenu(self.root, selected_option, *self.articles)
+        selected_option.set(self.articles[0].article_name) #default menu option
+        a_names = []
+        [a_names.append(x.article_name) for x in self.articles]
+        drop_menu = OptionMenu(self.root, selected_option, *a_names)
         self.widgets.append(drop_menu)
         drop_menu.pack()
-        select_button = Button(self.root, text="Select")
+        select_button = Button(self.root, text="Select", command= lambda : self.select_article(selected_option.get()))
         self.widgets.append(select_button)
         select_button.pack()
+        change_s = Button(text="edit mode", command= lambda : controller.change_state(ArticleEditState(self.root, [])))
+        self.widgets.append(change_s)
+        change_s.pack()
 
     def leave_state(self):
         """Override
         """
         #Call the base teardown of all widgets
         super(ArticleSelectionState, self).leave_state()
+    
+    def select_article(self, option):
+        if option == "New Article":
+            self.controller.change_state(ArticleEditState(self.root, None))
+        else:
+            load_a = None
+            for x in self.articles:
+                if x.article_name == option:
+                    load_a = x
+            self.controller.change_state(ArticleEditState(self.root, load_a))
 
 class ArticleEditState(GUIState):
     """The text edit state
     """
-    def __init__(self, root : Widget, articles = []):
+    def __init__(self, root : Widget, articles):
         """Initialize the default state with some articles defined by params
 
         Args:
@@ -105,11 +120,27 @@ class ArticleEditState(GUIState):
         #reference the state controller to change states with self.controller.change_state(newstate)
         
 
+
         # Setting up the frame for text editing
-        txt = Text(self.root)
-        self.widgets.append(txt)
+        top_frame = Frame(self.root)
+        top_frame.pack(side= TOP, expand= True, fill=BOTH)
+        text_frame = Frame(self.root)
+        text_frame.pack(side= BOTTOM, expand= True, fill=BOTH)
+        notes = Text(text_frame)
+        artic_name = Entry(top_frame)
+        ch_name = Entry(top_frame)
+        if self.articles != None:
+            notes.insert("end", self.articles.chapters[0].notes[0].note_text)
+            artic_name.insert("end", self.articles.article_name)
+            ch_name.insert("end", self.articles.chapters[0].title)
+        self.widgets.append(notes)
+        self.widgets.append(artic_name)
+        self.widgets.append(ch_name)
         # Assigning the text grid to the main window
-        txt.grid(row=0, column=1, sticky="nsew")
+        
+        artic_name.pack(expand = True, side = LEFT, fill= X)
+        ch_name.pack(side = RIGHT, expand= True, fill= X)
+        notes.pack(expand= True, fill= BOTH)
         #txt.insert(END, db.get_articles())
     
     def leave_state(self):
