@@ -142,7 +142,6 @@ class ArticleEditState(GUIState):
         artic_name.pack(expand = True, side = LEFT, fill= X)
         ch_name.pack(side = RIGHT, expand= True, fill= X)
         notes.pack(expand= True, fill= BOTH)
-        #txt.insert(END, db.get_articles())
     
     def leave_state(self):
         """Override

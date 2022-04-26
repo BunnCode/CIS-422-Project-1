@@ -32,13 +32,14 @@ class GuiWin():
         # Titling the window "Basic GUI"
         self.root = root
         root.title("Basic GUI")
-        # Creating the menu bar
-        self.menu_bar()
         # Loading articles from server
-        artics = db.get_articles
+        self.artic_list = []
         # sending articles into state machine
         articleSelectionState = gs.ArticleSelectionState(root, [])
+        # Creating state controller to start the gui
         self.state_controller = gs.StateController(articleSelectionState)
+        # Creating the menu bar
+        self.menu_bar()
 
         
 
@@ -53,9 +54,21 @@ class GuiWin():
         """
         # Creates an article with a default name
         artic = db.new_article("New Article")
+        
+        db.new_chapter(artic, "New chapter", )
         # Changes state to edit new article
         self.state_controller.change_state(gs.ArticleEditState(self.root, artic))
 
+    #def new_chapter(self):
+        """
+        Creates a new chapter in current article
+
+        Args: None
+
+        Returns: None
+        """
+        #if(isinstance(self.state_controller.current_state, gs.ArticleEditState)):
+            #self.state_controller.current_state.
 
     def save(self):
         """ Saves current article being worked on
@@ -73,11 +86,27 @@ class GuiWin():
         else:
             return
 
-    def openfile():
-        x = 0
+    def openfile(self, article_item):
+        """ Loads an article to be edited
+        Args: article_item : Article
 
-    def deletefile():
-        x = 0
+        Returns: None
+        """
+        self.state_controller.change_state(gs.ArticleEditState(self.root, article_item))
+
+    def deletefile(self):
+        """ Prompts user if they want to delete the current item
+        Args: None
+
+        Returns: None
+        """
+        if(isinstance(self.state_controller.current_state, gs.ArticleEditState)):
+            option = messagebox.askyesno("WARNING", "You are about to delete this entry. Do you still want to continue?")
+            if option:
+                db.delete_article(self.state_controller.current_state.article)
+                self.state_controller.change_state(gs.ArticleSelectionState(self.root, self.artic_list))
+        else:
+            return
     
     def exitprogram(self):
         """
@@ -92,15 +121,23 @@ class GuiWin():
         
     # Creating a menu bar
     def menu_bar(self):
-        
-        menubar = Menu(root)
+        """ Creates the menu bar of the program
+        Args: None
+        Returns: None
+        """
+        menubar = Menu(self.root)
         filemenu = Menu(menubar, tearoff=0)
-        sub_menu = Menu(filemenu, tearoff=0)
-        sub_menu.add_command(label="Book", command= lambda : self.newfile())
-        sub_menu.add_command(label="Chapter")
-        filemenu.add_cascade(label="New", menu=sub_menu)
-        filemenu.add_command(label="Open")
-        filemenu.add_command(label="Save")
+        new_menu = Menu(filemenu, tearoff=0)
+        new_menu.add_command(label="Book", command= lambda : self.newfile())
+        new_menu.add_command(label="Chapter", command= lambda : self.new_chapter())
+        recent_menu = Menu(filemenu, tearoff=0)
+        for item in self.artic_list:
+            new_menu.add_command(label=item.article_name, command=self.openfile(item))
+        filemenu.add_cascade(label="New", menu=new_menu)
+        filemenu.add_cascade(label="Open", menu=recent_menu)
+        filemenu.add_command(label="Save", command=self.save)
+        filemenu.add_separator()
+        filemenu.add_command(label="Delete", command=self.deletefile())
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command= lambda : self.exitprogram)
 
@@ -108,10 +145,10 @@ class GuiWin():
         
 
         edit_menu = Menu(menubar, tearoff=0)
-        edit_menu.add_command(label="")
+        edit_menu.add_command(label="yeet")
         menubar.add_cascade(label="Edit", menu=edit_menu)
 
-        root.config(menu = menubar)
+        self.root.config(menu = menubar)
 
 # --- main ---
 try:
