@@ -113,7 +113,7 @@ Chapter
 
 """
 class Note(Serializable):
-    def __init__(self, page_num : int, note_text : str):
+    def __init__(self, page_num : int, note_text : str, id :int):
         """A note on a specific heading
 
         Args:
@@ -122,21 +122,25 @@ class Note(Serializable):
         """
         self.note_text = note_text
         self.page_num = page_num
+        self.note_id = id
         super(Note, self).__init__()
         
 class Question(Serializable):
-     def __init__(self, question_text : str):
+     def __init__(self, question_text : str, answer_text : str,id :int):
         """A question about a certain chapter
 
         Args:
-            note_text (str): The question to be answered
+            question_text (str): The question to be answered
+            answer_text (str): The answer
         """
         #Text in this note
+        self.question_id = id
         self.question_text = question_text
+        self.answer_text = answer_text
         super(Question, self).__init__()
 
 class QuizAttempt(Serializable):
-    def __init__(self, score :int, max_score : int):
+    def __init__(self, score :int, max_score : int, id :int):
         """Logs a quiz attempt
 
         Args:
@@ -145,10 +149,11 @@ class QuizAttempt(Serializable):
         """
         self.score = score
         self.max_score = max_score
+        self.attempt_num = id
         super(QuizAttempt, self).__init__()
 
 class Chapter(Serializable):
-    def __init__(self, page_num : int, title : str):
+    def __init__(self, page_num : int, title : str, id :int):
         """Initialize a new chapter in a specific article.
 
         Args:
@@ -159,34 +164,11 @@ class Chapter(Serializable):
         self.page_num = page_num
         self.notes = []
         self.questions = []
+        self.chapter_id = id
         super(Chapter, self).__init__()
-    
-    def add_question(self, question_text : str) -> Question:
-        """add a new question to this chapter
-
-        Args:
-            question_text (str): question text
-        """
-        new_question = Question(question_text)
-        self.questions.append(new_question)
-        return new_question
-
-    def add_note(self, page_num : int, note_text : str) -> Note:
-        """Add a new note to this chapter
-
-        Args:
-            page_num (int): page number that this note refers to
-            note_text (str): Note to record
-
-        Returns:
-            Note: The new note
-        """
-        new_note = Note(page_num, note_text)
-        self.notes.append(new_note)
-        return new_note
 
 class Article(Serializable):
-    def __init__(self, article_name : str, article_id = -1):
+    def __init__(self, article_name : str, id :int):
         """Initialize a new article
 
         Args:
@@ -194,28 +176,6 @@ class Article(Serializable):
         """
         self.article_name = article_name
         self.chapters = []
-        self.article_id = article_id
+        self.article_id = id
         self.quiz_attempts = []
         super().__init__()
-    
-    def add_chapter(self, chapter_name : str, page_num : int) -> Chapter:
-        """Add a new chapter to this article
-
-        Args:
-            chapter_name (str): Name of the chapter to add
-        """
-        new_chapter = Chapter(page_num, chapter_name)
-        self.chapters.append(new_chapter)
-        return new_chapter
-    
-    def add_quiz_attempt(self, score : int, max_score : int) -> QuizAttempt:
-        """Add a new quiz attempt to this article
-
-        Args:
-            score (int): Score for this attempt
-            max_score (int): Max possible score for this attempt
-        """
-        new_attempt = QuizAttempt(score, max_score)
-        self.quiz_attempts.append(new_attempt)
-        return new_attempt
-    

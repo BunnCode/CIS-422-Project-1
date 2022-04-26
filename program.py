@@ -92,6 +92,16 @@ class GuiWin():
 
         root.config(menu = menubar)
 
+        """examples of how to use stuff on """
+        new_article.article_name = "new name"
+        db.save_article(new_article)
+        #db.save_chapter(new_article, new_chapter)
+        #db.save_question(new_article, new_question)
+        #db.save_note(new_article, new_note)
+        db.delete_question(new_article, new_chapter, new_question)
+        db.delete_note(new_article, new_chapter, new_note)
+        db.delete_article(new_article)
+        tomato = False
 # --- main ---
 try:
     root = Tk()
