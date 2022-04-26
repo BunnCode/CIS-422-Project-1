@@ -68,20 +68,21 @@ class ArticleSelectionState(GUIState):
         super(ArticleSelectionState, self).start_state(prev_state, controller)
         #reference the state controller to change states with self.controller.change_state(newstate)
         selected_option = StringVar(self.root)
+        a_names = []
         if len(self.articles) == 0:
             self.articles.append("New Article")
-        selected_option.set(self.articles[0].article_name) #default menu option
-        a_names = []
-        [a_names.append(x.article_name) for x in self.articles]
+            selected_option.set(self.articles[0])
+            a_names.append("New Article")
+        else:
+            selected_option.set(self.articles[0].article_name)
+            [a_names.append(x.article_name) for x in self.articles]
         drop_menu = OptionMenu(self.root, selected_option, *a_names)
         self.widgets.append(drop_menu)
         drop_menu.pack()
         select_button = Button(self.root, text="Select", command= lambda : self.select_article(selected_option.get()))
         self.widgets.append(select_button)
         select_button.pack()
-        change_s = Button(text="edit mode", command= lambda : controller.change_state(ArticleEditState(self.root, [])))
-        self.widgets.append(change_s)
-        change_s.pack()
+
 
     def leave_state(self):
         """Override
@@ -91,7 +92,7 @@ class ArticleSelectionState(GUIState):
     
     def select_article(self, option):
         if option == "New Article":
-            self.controller.change_state(ArticleEditState(self.root, None))
+            self.controller.change_state(ArticleEditState(self.root, db.new_article("New Article")))
         else:
             load_a = None
             for x in self.articles:
