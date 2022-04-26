@@ -70,9 +70,9 @@ class ArticleSelectionState(GUIState):
         selected_option = StringVar(self.root)
         a_names = []
         if len(self.articles) == 0:
-            self.articles.append("New Article")
+            self.articles.append("New")
             selected_option.set(self.articles[0])
-            a_names.append("New Article")
+            a_names.append("New")
         else:
             selected_option.set(self.articles[0].article_name)
             [a_names.append(x.article_name) for x in self.articles]
@@ -91,12 +91,17 @@ class ArticleSelectionState(GUIState):
         super(ArticleSelectionState, self).leave_state()
     
     def select_article(self, option):
-        if option == "New Article":
-            self.controller.change_state(ArticleEditState(self.root, db.new_article("New Article")))
+        #print(option)
+        if option == "New":
+            artic_pass = db.new_article("New Article")
+            db.new_chapter(artic_pass, "New Chapter", 1)
+            db.new_note(artic_pass, artic_pass.chapters[0], 1)
+            self.controller.change_state(ArticleEditState(self.root, artic_pass))
         else:
             load_a = None
             for x in self.articles:
                 if x.article_name == option:
+                    #print(x)
                     load_a = x
             self.controller.change_state(ArticleEditState(self.root, load_a))
 
@@ -130,10 +135,14 @@ class ArticleEditState(GUIState):
         notes = Text(text_frame)
         artic_name = Entry(top_frame)
         ch_name = Entry(top_frame)
+        prev_button = Button(top_frame, text="<-", command= lambda : self.prev_chap())
+        next_button = Button(top_frame, text="->", command= lambda : self.next_chap())
         if self.articles != None:
             if len(self.articles.chapters) != 0:
+                #print(self.articles.chapters[0])
                 notes.insert("end", self.articles.chapters[0].notes[0].note_text)
                 artic_name.insert("end", self.articles.article_name)
+
                 ch_name.insert("end", self.articles.chapters[0].title)
             else:
                 db.new_chapter(self.articles, "New Chapter", 1)
@@ -141,12 +150,59 @@ class ArticleEditState(GUIState):
         self.widgets.append(notes)
         self.widgets.append(artic_name)
         self.widgets.append(ch_name)
+        self.widgets.append(prev_button)
+        self.widgets.append(next_button)
+        self.current_chap = 0
+        self.current_page = 0
         # Assigning the text grid to the main window
-        
         artic_name.pack(expand = True, side = LEFT, fill= X)
-        ch_name.pack(side = RIGHT, expand= True, fill= X)
+        ch_name.pack(side = LEFT, expand= True, fill= X)
+        next_button.pack(side = RIGHT, expand = True, fill= X)
+        prev_button.pack(side = RIGHT, expand= True, fill= X)
         notes.pack(expand= True, fill= BOTH)
-    
+
+
+    def prev_chap(self):
+        """ 
+        Navigates to previous chapter if there is one
+            Args: None
+            Returns: None
+        """
+        db.save_article(self.articles)
+        if self.current_chap == 0:
+            return
+        else:
+            self.current_chap -= 1
+            self.widgets[0].delete('1.0', 'end') 
+            self.widgets[0].insert("end", self.articles.chapters[self.current_chap].get("notes")[0].get("note_text"))
+            self.widgets[2].delete('1.0', 'end')
+            self.widgets[2].insert("end", self.articles.chapters[self.current_chap])
+
+    def next_chap(self):
+        """ 
+        Navigates to the next chapter or creates one if there isn't
+            Args: None
+            Returns: None
+        """
+        db.save_article(self.articles)
+        self.widgets[0].delete('1.0', 'end')
+        self.widgets[2].delete('1.0', 'end')
+        self.current_chap += 1
+        if self.current_chap == len(self.articles.chapters):
+            
+            db.new_chapter(self.articles, "New Chapter", self.current_chap)
+            db.new_note(self.articles, self.articles.chapters[self.current_chap], 0)
+        else:
+            self.widgets[0].insert("end", self.articles.chapters[self.current_chap].notes[0].note_text)
+        self.widgets[2].insert("end", self.articles.chapters[self.current_chap])
+    def load_chap(self, chap_num):
+        """ 
+        Loads a specific Chapter
+            Args: Chap_num : int
+            Returns: None
+        """
+        self.widgets[0].c
+
     def leave_state(self):
         """Override
         """
