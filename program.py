@@ -82,6 +82,7 @@ class GuiWin():
             # Grabs the article being worked on
             artic = self.state_controller.current_state.articles
             # saves is
+            
             db.save_article(artic)
         else:
             return
@@ -135,7 +136,7 @@ class GuiWin():
             new_menu.add_command(label=item.article_name, command=self.openfile(item))
         filemenu.add_cascade(label="New", menu=new_menu)
         filemenu.add_cascade(label="Open", menu=recent_menu)
-        filemenu.add_command(label="Save", command=self.save)
+        filemenu.add_command(label="Save", command= lambda : self.save())
         filemenu.add_separator()
         filemenu.add_command(label="Delete", command=self.deletefile())
         filemenu.add_separator()

@@ -131,9 +131,13 @@ class ArticleEditState(GUIState):
         artic_name = Entry(top_frame)
         ch_name = Entry(top_frame)
         if self.articles != None:
-            notes.insert("end", self.articles.chapters[0].notes[0].note_text)
-            artic_name.insert("end", self.articles.article_name)
-            ch_name.insert("end", self.articles.chapters[0].title)
+            if len(self.articles.chapters) != 0:
+                notes.insert("end", self.articles.chapters[0].notes[0].note_text)
+                artic_name.insert("end", self.articles.article_name)
+                ch_name.insert("end", self.articles.chapters[0].title)
+            else:
+                db.new_chapter(self.articles, "New Chapter", 1)
+                db.new_note(self.articles, self.articles.chapters[0], 1)
         self.widgets.append(notes)
         self.widgets.append(artic_name)
         self.widgets.append(ch_name)
