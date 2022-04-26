@@ -1,7 +1,7 @@
 import json
 import datastructures as ds
 
-from typing import List
+from typing import Any, List
 from urllib.request import urlopen
 from urllib import request, parse, response
 import datastructures as ds
@@ -9,7 +9,7 @@ import datastructures as ds
 import asyncio
 import time
 #URL of the API
-API_URL = "http://52.40.140.242:80"
+API_URL = "http://52.40.140.242:3000"
 ENCODING = "utf-8"
 HEADERS = {
          "Content-Type" : "application/json"
@@ -76,51 +76,299 @@ def load_article(id : int) -> ds.Article:
         response_content = response.read()
         return decode_response(response_content)
 
-class ArticleValidator:
-    _ArticlesToTrack = set() #Set of all tracked articles
-    _KillUpdater = False #Internal flag used when closing out the updater to prevent collisions
+
+"""Article-related calls"""
+def new_article(article_name : str) -> ds.Article:
+    """Creates a new article and returns it
+
+    Args:
+        article_name (str): Name of the new article
+
+    Returns:
+        ds.Article: new article
+    """
+    body = json.dumps({"article_name" : article_name}).encode()
+    req = request.Request(API_URL + "/newArticle", data = body, headers=HEADERS, method="POST")
+    with urlopen(req) as response:
+        response_content = response.read()
+        return load_article(decode_response(response_content, "article_id"))
+
+def delete_article(article : ds.Article) -> Any:
+    """Delete an article from the server
+
+    Args:
+        article (ds.Article): article to delete
+
+    Returns:
+        Any: response from server
+    """
+    body = json.dumps({"article_id" : article.article_id}).encode()
+    req = request.Request(API_URL + "/deleteArticle", data = body, headers=HEADERS, method="DELETE")
+    with urlopen(req) as response:
+        response_content = response.read()
+        return decode_response(response_content)
+
+def save_article(article : ds.Article) -> Any:
+    """Save article on server. Recursively calls save on chapters as well.
+
+    Args:
+        article (ds.Article): Article to save
+
+    Returns:
+        Any: Response from server
+    """
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "new_name" : article.article_name
+        }).encode()
+    req = request.Request(API_URL + "/editArticle", data = body, headers=HEADERS, method="PUT")
     
-    def __update_article(article : ds.Article):
-        """Private method not to be called from outside the class. Updates an article 
-        on the server from the local copy.
+    #Recursively call on children
+    for c in article.chapters:
+        save_chapter(article, c)
 
-        Args:
-            article (ds.Article): article to update
-        """
+    with urlopen(req) as response:
+        response_content = response.read()
+        return decode_response(response_content)
+
+"""Chapter-related calls"""
+def new_chapter(article : ds.Article, name : str, page : int) -> ds.Chapter:
+    """Create a new chapter both locally and on the server
+
+    Args:
+        article (ds.Article): Article to associate with
+        name (str): Name of chapter
+        page (int): Page of chapter
+
+    Returns:
+        ds.Chapter: New chapter 
+    """
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "chapter_name" : name,
+        "chapter_order" : page
+        }).encode()
+
+    req = request.Request(API_URL + "/newChapter", data = body, headers=HEADERS, method="POST")
+
+    with urlopen(req) as response:
+        response_content = response.read()
+        new_chap = ds.Chapter(page, name, decode_response(response_content, "chapter_id"))
+        article.chapters.append(new_chap)
+        return new_chap
+
+def delete_chapter(article : ds.Article, chapter : ds.Chapter) -> Any:
+    """Delete a chapter both locally and from the server
+
+    Args:
+        article (ds.Article): Article to delete chapter from
+        chapter (ds.Chapter): Chapter to delete
+
+    Returns:
+        Any: Response from server
+    """
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "chapter_id" : chapter.article_id
+        }).encode()
+    req = request.Request(API_URL + "/deleteChapter", data = body, headers=HEADERS, method="DELETE")
+    with urlopen(req) as response:
+        response_content = response.read()
+        article.chapters.remove(chapter)
+        return decode_response(response_content)
 
 
-    async def __update_articles_on_server(delay):
-        """Private coroutine that keeps articles updated server-side.
-        """
-        while(not ArticleValidator._KillUpdater):
-            await asyncio.sleep(delay)
-            #ArticleValidator.__update_article()
-            print("update called \n")
+def save_chapter(article : ds.Article, chapter : ds.Chapter) -> Any:
+    """Save chapter on server. Recursively calls on children.
 
-    def initialize_tracking(update_delay : int):
-        """Call to initialize tracking of articles to the server
+    Args:
+        article (ds.Article): Article the question is in
+        chapter (ds.Chapter): Chapter to save
 
-        Args:
-            update_delay (int): Delay in seconds between tracking updates
-        """
-        #Initialize the coroutine
-        asyncio.create_task(
-            ArticleValidator.__update_articles_on_server(update_delay))
+    Returns:
+        Any: Response from server
+    """
 
-    def track_article_to_server(article : ds.Article):
-        """Set an article to track with the server
-
-        Args:
-            article (ds.Article): Article to track
-        """
-        ArticleValidator._ArticlesToTrack.add(article)
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "chapter_id" : chapter.chapter_id,
+        "new_name" : chapter.title
+        }).encode()
+    req = request.Request(API_URL + "/editChapter", data = body, headers=HEADERS, method="PUT")
     
-    def untrack_article(article : ds.Article):
-        """Stop tracking an article (always call this before destroying the article)
+    #Recursively call on children
+    for n in chapter.notes:
+        save_note(article, n)
+    for q in chapter.questions:
+        save_question(article, q)
 
-        Args:
-            article (ds.Article): Article to stop tracking
-        """
-        ArticleValidator._ArticlesToTrack.remove(article)
-        #await asyncio.sleep(delay)
+    with urlopen(req) as response:
+        response_content = response.read()
+        return decode_response(response_content)
+
+"""Quiz-related calls"""
+def new_question(article : ds.Article, chapter: ds.Chapter, question : str, answer : str) -> ds.Question:
+    """Create new question both locally and on the server
+
+    Args:
+        article (ds.Article): Article to add the question to
+        chapter (ds.Chapter): Chapter to add the question to
+        question (str): Question text
+        answer (str): Answer to the question
+
+    Returns:
+        ds.Question: The new question
+    """
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "chapter_id" : chapter.chapter_id,
+        "question" : question,
+        "answer" : answer
+        }).encode()
+
+    req = request.Request(API_URL + "/newQuestion", data = body, headers=HEADERS, method="POST")
+
+    with urlopen(req) as response:
+        response_content = response.read()
+        new_question = ds.Question(question, answer, decode_response(response_content, "question_id"))
+        chapter.questions.append(new_question)
+        return new_question
+
+def delete_question(article : ds.Article, chapter:ds.Chapter, question : ds.Question) -> Any:
+    """Delete a question both locally and from the server
+
+    Args:
+        article (ds.Article): Article to delete question from
+        chapter (ds.Chapter): Chapter to delete question from
+        question (ds.Question): Question to delete
+
+    Returns:
+        Any: Response from server
+    """
+
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "question_id" : question.question_id
+        }).encode()
+    req = request.Request(API_URL + "/deleteQuestion", data = body, headers=HEADERS, method="DELETE")
+    with urlopen(req) as response:
+        response_content = response.read()
+        chapter.questions.remove(question)
+        return decode_response(response_content)
+
+def save_question(article : ds.Article, question : ds.Question) -> Any:
+    """Save question on server.
+
+    Args:
+        article (ds.Article): Article the question is in
+        question (ds.Question): Question to save
+
+    Returns:
+        Any: Response from server
+    """
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "question_id" : question.question_id,
+        "new_question" : question.question_text,
+        "new_answer" : question.answer_text
+        }).encode()
+    req = request.Request(API_URL + "/editQuestion", data = body, headers=HEADERS, method="PUT")
+    with urlopen(req) as response:
+        response_content = response.read()
+        return decode_response(response_content)
+
+def record_quiz_attempt(article : ds.Article, score : int, max_score : int) -> ds.QuizAttempt:
+    """Record new quiz attempt to server.
+
+    Args:
+        article (ds.Article): Article associated with attempt
+        score (int): score for this attempt
+        max_score (int): max possible score for this attempt
         
+    Returns:
+        Any: Response from server
+    """
+    score = min(max_score, (max(score, max_score))) #normalize score between bounds
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "score" : score,
+        "max_score" :  max_score
+        }).encode()
+
+    req = request.Request(API_URL + "/recordQuizAttempt", data = body, headers=HEADERS, method="POST")
+
+    with urlopen(req) as response:
+        response_content = response.read()
+        new_attempt = ds.QuizAttempt(score, max_score, decode_response(response_content, "attempt_id"))
+        article.quiz_attempts.append(new_attempt)
+        return new_attempt
+
+"""Note-related calls"""
+def new_note(article : ds.Article, chapter: ds.Chapter, page : int) -> ds.Note:
+    """Create a new note, both locally and on the server
+
+    Args:
+        article (ds.Article): Article to associate the note with
+        chapter (ds.Chapter): Chapter the note is on
+        page (int): Page the note is on
+
+    Returns:
+        ds.Note: New note 
+    """
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "chapter_id" : chapter.chapter_id,
+        "note" : "", #empty by default
+        "page_num" : page
+        }).encode()
+
+    req = request.Request(API_URL + "/newNote", data = body, headers=HEADERS, method="POST")
+
+    with urlopen(req) as response:
+        response_content = response.read()
+        new_note = ds.Note(page, "", decode_response(response_content, "note_id"))
+        chapter.notes.append(new_note)
+        return new_note
+
+def delete_note(article : ds.Article, chapter:ds.Chapter, note : ds.Note) -> Any:
+    """Delete a note both locally and on the server
+
+    Args:
+        article (ds.Article): Article to delete note from
+        chapter (ds.Chapter): Chapter to delete note from
+        note (ds.Note): Note to delete
+
+    Returns:
+        Any: Response from server
+    """
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "note_id" : note.note_id
+        }).encode()
+    req = request.Request(API_URL + "/deleteNote", data = body, headers=HEADERS, method="DELETE")
+    with urlopen(req) as response:
+        response_content = response.read()
+        chapter.notes.remove(note)
+        return decode_response(response_content)
+
+def save_note(article : ds.Article, note : ds.Note) -> Any:
+    """Save note to server
+
+    Args:
+        article (ds.Article): Article associated with note
+        note (ds.Note): Note to save
+
+    Returns:
+        Any: Response from server
+    """
+
+    body = json.dumps({
+        "article_id" : article.article_id,
+        "note_id" : note.note_id,
+        "new_text" : note.note_text,
+        "new_page_num" : note.page_num
+        }).encode()
+    req = request.Request(API_URL + "/deleteNote", data = body, headers=HEADERS, method="DELETE")
+    with urlopen(req) as response:
+        response_content = response.read()
+        return decode_response(response_content)

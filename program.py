@@ -24,7 +24,7 @@ class GuiWin():
         """
 
         #Initialize article tracking with a delay of 5 seconds between validations
-        db.ArticleValidator.initialize_tracking(5)
+        #db.ArticleValidator.initialize_tracking(5)
         
 
 
@@ -32,6 +32,7 @@ class GuiWin():
         # Titling the window "Basic GUI"
         self.master = master
         master.title("Basic GUI")
+
 
         # Resizing the rows and column of the frame
         master.rowconfigure(0, minsize=800, weight=1)
@@ -60,11 +61,26 @@ class GuiWin():
         #txt.insert(tk.END, db.get_articles())
         """This is an example of how to load a specific article by ID"""
         #article = db.load_article(1)
+        new_article = db.new_article("How to tame dragons v2")
+        new_chapter = db.new_chapter(new_article, "Choosing a bridle", 0)
+        new_question = db.new_question(new_article, new_chapter, "What makes a good bridle?", "it's up to personal preference")
+        new_quiz_attempt = db.record_quiz_attempt(new_article, 10, 10)
+        new_note = db.new_note(new_article, new_chapter, 1)
 
+        """examples of how to use stuff on """
+        new_article.article_name = "new name"
+        db.save_article(new_article)
+        #db.save_chapter(new_article, new_chapter)
+        #db.save_question(new_article, new_question)
+        #db.save_note(new_article, new_note)
+        db.delete_question(new_article, new_chapter, new_question)
+        db.delete_note(new_article, new_chapter, new_note)
+        db.delete_article(new_article)
+        tomato = False
 # --- main ---
-try:
-    root = tk.Tk()
-    gui = GuiWin(root)
-    root.mainloop()
-except Exception as e:
-    messagebox.showerror('Python Error', e)
+#try:
+root = tk.Tk()
+gui = GuiWin(root)
+root.mainloop()
+#except Exception as e:
+#    messagebox.showerror('Python Error', e)
