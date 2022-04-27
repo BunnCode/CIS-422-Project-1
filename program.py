@@ -1,3 +1,16 @@
+"""
+Authored by Max Freshour
+Created     4/5/22
+Last edited 4/26/22
+
+Module containing the logic for the GUI window. These start by calling the state machine
+Creates the main window for the Gui and implements a menu bar
+The gui is created from the GuiWin class and pull database articles to load into the state machine
+
+Also implements menu bar methods including, load, save, new, and delete
+See function defenitions for more details
+"""
+
 ###This file contains the GUI code and the main loop of the project.
 ###All databse management code should be done in databse.py
 
