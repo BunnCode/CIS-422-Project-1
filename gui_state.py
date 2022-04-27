@@ -11,7 +11,6 @@ individual classes for more information.
 
 from __future__ import annotations
 from sre_parse import State
-#import datastructures file
 import datastructures as ds
 from tkinter import *
 from tkinter import messagebox
@@ -125,7 +124,7 @@ class ArticleSelectionState(GUIState):
             load_a = None
             for x in self.articles:
                 if x.article_name == option:
-                    #print(x)
+                    print(x)
                     load_a = x
             self.controller.change_state(ArticleEditState(self.root, load_a))
 
@@ -150,7 +149,6 @@ class ArticleEditState(GUIState):
         #reference the state controller to change states with self.controller.change_state(newstate)
         
 
-
         # Setting up the frame for text editing
         top_frame = Frame(self.root)
         top_frame.pack(side= TOP, expand= True, fill=BOTH)
@@ -163,11 +161,18 @@ class ArticleEditState(GUIState):
         next_button = Button(top_frame, text="->", command= lambda : self.next_chap())
         if self.articles != None:
             if len(self.articles.chapters) != 0:
-                #print(self.articles.chapters[0])
-                notes.insert("end", self.articles.chapters[0].notes[0].note_text)
-                artic_name.insert("end", self.articles.article_name)
-
-                ch_name.insert("end", self.articles.chapters[0].title)
+                #self.articles = db.load_article(self.articles.article_id)
+                #print(self.articles)
+                if(isinstance(self.articles.chapters[0], dict)):
+                    #print(self.articles.chapters[0])
+                    notes.insert("end", self.articles.chapters[0].get("notes")[0].get("note_text"))
+                    artic_name.insert("end", self.articles.article_name)
+                    ch_name.insert("end", self.articles.chapters[0].get("title"))
+                else:
+                    #print(self.articles.chapters[0])
+                    notes.insert("end", self.articles.chapters[0].notes[0].note_text)
+                    artic_name.insert("end", self.articles.article_name)
+                    ch_name.insert("end", self.articles.chapters[0].title)
             else:
                 db.new_chapter(self.articles, "New Chapter", 1)
                 db.new_note(self.articles, self.articles.chapters[0], 1)
@@ -226,7 +231,10 @@ class ArticleEditState(GUIState):
             Args: Chap_num : int
             Returns: None
         """
-        self.widgets[0].c
+        db.save_article(self.articles)
+        self.widgets[0].delete('1.0', 'end')
+        self.widgets[2].delete('1.0', 'end')
+
 
     def leave_state(self):
         """Override
