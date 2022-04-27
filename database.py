@@ -74,7 +74,12 @@ def load_article(id : int) -> ds.Article:
     #Execute the request and get the result
     with urlopen(req) as response:
         response_content = response.read()
-        return decode_response(response_content)
+        article = decode_response(response_content)
+        new_article = ds.Article(article.article_name, article.article_id)
+        if(not hasattr(new_article, "chapters")):
+            new_article.chapters = []
+        #new_article.chapters = article.chapters
+        return new_article
 
 
 """Article-related calls"""
