@@ -74,7 +74,7 @@ def load_article(id : int) -> ds.Article:
     #Execute the request and get the result
     with urlopen(req) as response:
         response_content = response.read()
-        return ds.Article.from_json(decode_response(response_content))
+        return decode_response(response_content)
 
 
 """Article-related calls"""
