@@ -1,3 +1,14 @@
+"""
+Authored by Isabelle Cudlitz and Max Freshour
+Created     4/20/22
+Last edited 4/26/22
+
+Module containing the logic for the GUI state machine. Each state contains 
+the GUI code for that individual state; this GUI is built out in start_state
+and torn down in leave_state. This is controlled by the StateController object. See
+individual classes for more information.
+"""
+
 from __future__ import annotations
 from sre_parse import State
 #import datastructures file
@@ -34,7 +45,15 @@ class GUIState:
         self.widgets = []      
 
 class StateController:
+    """State machine controller. This class simply controls the currently running
+    state and invokes logic on states when switching between them.
+    """
     def change_state(self, new_state : GUIState):
+        """Change the current state to a new state
+
+        Args:
+            new_state (GUIState): New state 
+        """
         if(self.current_state != None):
             #call the code to tear down the old UI
             self.current_state.leave_state()
@@ -45,6 +64,11 @@ class StateController:
             self.current_state.start_state(last_state, self)
 
     def __init__(self, initial_state : GUIState = None):
+        """Initialize a new state controller
+
+        Args:
+            initial_state (GUIState, optional): Initial state to start in. Defaults to None.
+        """
         self.current_state = initial_state
         self.current_state.start_state(None, self)
 

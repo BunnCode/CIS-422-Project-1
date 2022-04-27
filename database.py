@@ -1,3 +1,13 @@
+"""
+Authored by Isabelle Cudlitz 
+Created     4/15/22
+Last edited 4/26/22
+
+Module containing all necessary functions to validate, load, and update data from the 
+server. Mostly concerned with the data structures defined in datastructures.py.
+
+See individual methods for more in-depth comments.
+"""
 import json
 import datastructures as ds
 
@@ -115,6 +125,7 @@ def delete_article(article : ds.Article) -> Any:
 
 def save_article(article : ds.Article) -> Any:
     """Save article on server. Recursively calls save on chapters as well.
+    Only call this on articles that already exist on the server.
 
     Args:
         article (ds.Article): Article to save
@@ -185,6 +196,7 @@ def delete_chapter(article : ds.Article, chapter : ds.Chapter) -> Any:
 
 def save_chapter(article : ds.Article, chapter : ds.Chapter) -> Any:
     """Save chapter on server. Recursively calls on children.
+    Only call this on chapters that already exist on the server.
 
     Args:
         article (ds.Article): Article the question is in
@@ -263,6 +275,7 @@ def delete_question(article : ds.Article, chapter:ds.Chapter, question : ds.Ques
 
 def save_question(article : ds.Article, question : ds.Question) -> Any:
     """Save question on server.
+    Only call this on questions that already exist on the server.
 
     Args:
         article (ds.Article): Article the question is in

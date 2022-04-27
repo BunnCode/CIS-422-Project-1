@@ -1,11 +1,24 @@
+"""
+Authored by Isabelle Cudlitz 
+Created     4/16/22
+Last edited 4/26/22
+
+This file contains  a set of data structures that are used to store data locally.
+These data structure classes also provide a route to export as JSON, which is used
+when communicating with the server on the back-end.
+
+These conversions are implemented through the Serializable interface. Specifics on
+how to implement and use the Serializable interface are defined in the class.
+"""
+
 from __future__ import annotations
 import json
 import re
 from typing import Dict
 
-
-
 class Serializable:
+    """Class allowing those that import it to flat-pack themselves as JSON
+    """
     #prefix given to serializable class names
     __PREFIX = ""
     #ID given to objects that have not synced with the database yet
@@ -120,8 +133,8 @@ class Note(Serializable):
             note_text (str): The note 
             page (int): The page of the note
         """
-        self.note_text = note_text
-        self.page_num = page_num
+        self.note_text = note_text 
+        self.page_num = page_num 
         self.note_id = id
         super(Note, self).__init__()
         
