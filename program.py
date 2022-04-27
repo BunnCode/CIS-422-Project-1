@@ -99,12 +99,15 @@ class GuiWin():
             # Grabs the article being worked on
             saving_artic = self.state_controller.current_state.articles
             
-            print(saving_artic)
+            #print(saving_artic)
             # Updates the name of the article
             saving_artic.article_name = self.state_controller.current_state.widgets[1].get()
             # updates the chapter being worked on
-            print(saving_artic.chapters[0])
-            saving_artic.chapters[self.state_controller.current_state.current_chap-1]["title"] = self.state_controller.current_state.widgets[2].get()
+            print(saving_artic.chapters)
+            print(saving_artic.chapters[self.state_controller.current_state.current_chap])
+            print(self.state_controller.current_state.widgets[2].get())
+            saving_artic.chapters[self.state_controller.current_state.current_chap].title = self.state_controller.current_state.widgets[2].get()
+            saving_artic.chapters[self.state_controller.current_state.current_chap].notes[0]["note_text"] = self.state_controller.current_state.widgets[0].get("1.0", "end")
             # saves it to database
             db.save_article(saving_artic)
         else:
@@ -185,7 +188,7 @@ class GuiWin():
         new_menu = Menu(filemenu, tearoff=0)
         # Items to make new books and chapter
         new_menu.add_command(label="Book", command= lambda : self.newfile())
-        new_menu.add_command(label="Chapter", command= lambda : self.new_chapter())
+        new_menu.add_command(label="Chapter", command= lambda : self.new_chapter(self.state_controller.current_state.articles))
         # Returns to selection state
         filemenu.add_command(label="Home", command= lambda : self.home())
         # New menu with sub menu options
@@ -202,11 +205,6 @@ class GuiWin():
         filemenu.add_command(label="Exit", command=self.exitprogram)
 
         menubar.add_cascade(label="File", menu=filemenu)
-        
-
-        edit_menu = Menu(menubar, tearoff=0)
-        edit_menu.add_command(label="yeet")
-        menubar.add_cascade(label="Edit", menu=edit_menu)
 
         self.root.config(menu = menubar)
 
