@@ -188,18 +188,18 @@ def save_chapter(article : ds.Article, chapter : ds.Chapter) -> Any:
     Returns:
         Any: Response from server
     """
-
+    print(chapter)
     body = json.dumps({
         "article_id" : article.article_id,
-        "chapter_id" : chapter.chapter_id,
-        "new_name" : chapter.title
+        "chapter_id" : chapter.get("chapter_id"),
+        "new_name" : chapter.get("title")
         }).encode()
     req = request.Request(API_URL + "/editChapter", data = body, headers=HEADERS, method="PUT")
     
     #Recursively call on children
-    for n in chapter.notes:
+    for n in chapter.get("notes"):
         save_note(article, n)
-    for q in chapter.questions:
+    for q in chapter.get("questions"):
         save_question(article, q)
 
     with urlopen(req) as response:
@@ -268,9 +268,9 @@ def save_question(article : ds.Article, question : ds.Question) -> Any:
     """
     body = json.dumps({
         "article_id" : article.article_id,
-        "question_id" : question.question_id,
-        "new_question" : question.question_text,
-        "new_answer" : question.answer_text
+        "question_id" : question.get("question_id"),
+        "new_question" : question.get("question_text"),
+        "new_answer" : question.get("answer_text")
         }).encode()
     req = request.Request(API_URL + "/editQuestion", data = body, headers=HEADERS, method="PUT")
     with urlopen(req) as response:
@@ -364,9 +364,9 @@ def save_note(article : ds.Article, note : ds.Note) -> Any:
 
     body = json.dumps({
         "article_id" : article.article_id,
-        "note_id" : note.note_id,
-        "new_text" : note.note_text,
-        "new_page_num" : note.page_num
+        "note_id" : note.get("note_id"),
+        "new_text" : note.get("note_text"),
+        "new_page_num" : note.get("page_num")
         }).encode()
     req = request.Request(API_URL + "/deleteNote", data = body, headers=HEADERS, method="DELETE")
     with urlopen(req) as response:

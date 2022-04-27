@@ -195,6 +195,7 @@ class ArticleEditState(GUIState):
         else:
             self.widgets[0].insert("end", self.articles.chapters[self.current_chap].notes[0].note_text)
         self.widgets[2].insert("end", self.articles.chapters[self.current_chap])
+
     def load_chap(self, chap_num):
         """ 
         Loads a specific Chapter

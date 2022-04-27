@@ -103,7 +103,7 @@ class GuiWin():
             # Updates the name of the article
             saving_artic.article_name = self.state_controller.current_state.widgets[1].get()
             # updates the chapter being worked on
-            #print(saving_artic.chapters)
+            print(saving_artic.chapters[0])
             saving_artic.chapters[self.state_controller.current_state.current_chap-1]["title"] = self.state_controller.current_state.widgets[2].get()
             # saves it to database
             db.save_article(saving_artic)
